@@ -410,16 +410,18 @@ module F = struct
   let to_string_base_digits ~base: base ~digits: digits x =
     let mantissa, exponent =
       to_string_exp_base_digits ~base: base ~digits: digits (abs x)
-    in let sign = sgn x in
-       if sign = 0 then "0" else
-       ((if sign < 0 then "-" else "")
+    in
+    let sign = sgn x in
+    if sign = 0 then "0"
+    else
+      ((if sign < 0 then "-" else "")
        ^ (let lm=String.length mantissa
         in if lm > 1
-           then let tmp = String.create (succ lm)
-                in String.blit mantissa 0 tmp 0 1;
-                   String.blit mantissa 1 tmp 2 (pred lm);
-                   String.set tmp 1 '.';
-                   tmp
+           then let tmp = Bytes.create (succ lm)
+                in Bytes.blit_string mantissa 0 tmp 0 1;
+                   Bytes.blit_string mantissa 1 tmp 2 (pred lm);
+                   Bytes.set tmp 1 '.';
+                   Bytes.to_string tmp
            else mantissa)
        ^ (if base <= 10 then "E" else "@")
        ^ (string_of_int (pred exponent)));;
@@ -603,19 +605,24 @@ module FR = struct
      ~base: base ~digits: digits x =
    let mantissa, exponent =
      to_string_exp_base_digits ~mode: mode ~base: base ~digits: digits x
-       in let i = (if (sgn x) < 0 then 1 else 0) in
-       (if mantissa = "Inf"
-          then "Inf"
-          else (let lm=String.length mantissa
-        in if lm > 1
-           then let tmp = String.create (succ lm)
-                in String.blit mantissa 0 tmp 0 (1+i);
-                   String.blit mantissa (1+i) tmp (2+i) ((pred lm)-i);
-                   String.set tmp (1+i) '.';
-                   tmp
-           else mantissa)
-       ^ (if base <= 10 then "E" else "@")
-       ^ (string_of_int (pred exponent)));;
+   in
+   let i = (if (sgn x) < 0 then 1 else 0) in
+   let prefix : string =
+     if mantissa = "Inf" then "Inf"
+     else
+       let lm=String.length mantissa in
+       if lm > 1 then
+         let tmp = Bytes.create (succ lm) in
+         Bytes.blit_string mantissa 0 tmp 0 (1+i);
+         Bytes.blit_string mantissa (1+i) tmp (2+i) ((pred lm)-i);
+         Bytes.set tmp (1+i) '.';
+         Bytes.to_string tmp
+       else mantissa
+   in
+   prefix
+   ^ (if base <= 10 then "E" else "@")
+   ^ (string_of_int (pred exponent))
+;;
 
   let to_string = to_string_base_digits ~mode: GMP_RNDN ~base: 10 ~digits: 10;;
 
