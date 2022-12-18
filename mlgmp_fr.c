@@ -117,7 +117,7 @@ value _mlgmp_fr_to_float(value mode, value v)
 #ifdef USE_MPFR
   CAMLparam1(v);
   CAMLlocal1(r);
-  r = copy_double(mpfr_get_d(*mpfr_val(v), Mode_val(mode)));
+  r = caml_copy_double(mpfr_get_d(*mpfr_val(v), Mode_val(mode)));
   CAMLreturn(r);
 #else
   unimplemented(to_float);
@@ -129,7 +129,7 @@ value _mlgmp_fr_to_z_exp(value v)
 #ifdef USE_MPFR
   CAMLparam1(v);
   CAMLlocal2(r, z);
-  r = alloc_tuple(2);
+  r = caml_alloc_tuple(2);
   z = alloc_init_mpz();
   Store_field(r, 0, z);
   Store_field(r, 1, Val_int(mpfr_get_z_exp(*mpz_val(z), *mpfr_val(v))));
@@ -148,10 +148,10 @@ value _mlgmp_fr_to_string_exp_base_digits(value mode,
   mp_exp_t exponent;
   char *s= mpfr_get_str(NULL, &exponent, Int_val(base), Int_val(digits),
 		       *mpfr_val(val), Mode_val(mode));
-  rs=alloc_string(strlen(s));
-  strcpy(String_val(rs), s);
+  rs=caml_alloc_string(strlen(s));
+  strcpy((char*) String_val(rs), s);
   free(s);
-  r=alloc_tuple(2);
+  r=caml_alloc_tuple(2);
   Store_field(r, 0, rs);
   Store_field(r, 1, Val_int(exponent));
   CAMLreturn(r);
@@ -429,7 +429,7 @@ value _mlgmp_fr_initialize(void)
 {
 #ifdef USE_MPFR
   CAMLparam0();
-  register_custom_operations(& _mlgmp_custom_f);
+  caml_register_custom_operations(& _mlgmp_custom_f);
   CAMLreturn(Val_unit);
 #endif
 }
@@ -448,18 +448,18 @@ void _mlgmp_fr_serialize(value v,
   *wsize_32 = MPFR_SIZE_ARCH32;
   *wsize_64 = MPFR_SIZE_ARCH64;
 
-  serialize_int_4(mpfr_get_prec(*mpfr_val(v)));
+  caml_serialize_int_4(mpfr_get_prec(*mpfr_val(v)));
 
   s = mpfr_get_str (NULL, &exponent, 16, 0, *mpfr_val(v), GMP_RNDN);
   len = strlen(s);
-  serialize_int_4(len + 11);
+  caml_serialize_int_4(len + 11);
 
-  serialize_block_1("0.", 2);
-  serialize_block_1(s, len);
+  caml_serialize_block_1("0.", 2);
+  caml_serialize_block_1(s, len);
   free(s);
 
   sprintf(exponent_buf, "@%08lx", (exponent & 0xFFFFFFFFUL));
-  serialize_block_1(exponent_buf, 9);
+  caml_serialize_block_1(exponent_buf, 9);
 
   CAMLreturn0;
 }
@@ -469,11 +469,11 @@ unsigned long _mlgmp_fr_deserialize(void * dst)
   char *s;
   int len;
 
-  mpfr_init2(*((mpfr_t*) dst), deserialize_uint_4());
+  mpfr_init2(*((mpfr_t*) dst), caml_deserialize_uint_4());
 
-  len = deserialize_uint_4();
+  len = caml_deserialize_uint_4();
   s = malloc(len+1);
-  deserialize_block_1(s, len);
+  caml_deserialize_block_1(s, len);
   s[len] = 0;
   mpfr_set_str (*((mpfr_t*) dst), s, 16, GMP_RNDN);
   free(s);

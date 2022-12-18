@@ -90,7 +90,7 @@ value _mlgmp_f_to_float(value v)
 {
   CAMLparam1(v);
   CAMLlocal1(r);
-  r = copy_double(mpf_get_d(*mpf_val(v)));
+  r = caml_copy_double(mpf_get_d(*mpf_val(v)));
   CAMLreturn(r);
 }
 
@@ -101,10 +101,10 @@ value _mlgmp_f_to_string_exp_base_digits(value base, value digits, value val)
   mp_exp_t exponent;
   char *s= mpf_get_str(NULL, &exponent, Int_val(base), Int_val(digits),
 		       *mpf_val(val));
-  rs=alloc_string(strlen(s));
-  strcpy(String_val(rs), s);
+  rs=caml_alloc_string(strlen(s));
+  strcpy((char*) String_val(rs), s);
   free(s);
-  r=alloc_tuple(2);
+  r=caml_alloc_tuple(2);
   Store_field(r, 0, rs);
   Store_field(r, 1, Val_int(exponent));
   CAMLreturn(r);
@@ -284,7 +284,7 @@ value _mlgmp_f_random2(value prec, value nlimbs, value max_exp)
 value _mlgmp_f_initialize()
 {
   CAMLparam0();
-  register_custom_operations(& _mlgmp_custom_f);
+  caml_register_custom_operations(& _mlgmp_custom_f);
   CAMLreturn(Val_unit);
 }
 
@@ -302,18 +302,18 @@ void _mlgmp_f_serialize(value v,
   *wsize_32 = MPF_SIZE_ARCH32;
   *wsize_64 = MPF_SIZE_ARCH64;
 
-  serialize_int_4(mpf_get_prec(*mpf_val(v)));
+  caml_serialize_int_4(mpf_get_prec(*mpf_val(v)));
 
   s = mpf_get_str (NULL, &exponent, 16, 0, *mpf_val(v));
   len = strlen(s);
-  serialize_int_4(len + 11);
+  caml_serialize_int_4(len + 11);
 
-  serialize_block_1("0.", 2);
-  serialize_block_1(s, len);
+  caml_serialize_block_1("0.", 2);
+  caml_serialize_block_1(s, len);
   free(s);
 
   sprintf(exponent_buf, "@%08lx", (exponent & 0xFFFFFFFFUL));
-  serialize_block_1(exponent_buf, 9);
+  caml_serialize_block_1(exponent_buf, 9);
 
   CAMLreturn0;
 }
@@ -323,11 +323,11 @@ unsigned long _mlgmp_f_deserialize(void * dst)
   char *s;
   int len;
 
-  mpf_init2(*((mpf_t*) dst), deserialize_uint_4());
+  mpf_init2(*((mpf_t*) dst), caml_deserialize_uint_4());
 
-  len = deserialize_uint_4();
+  len = caml_deserialize_uint_4();
   s = malloc(len+1);
-  deserialize_block_1(s, len);
+  caml_deserialize_block_1(s, len);
   s[len] = 0;
   mpf_set_str (*((mpf_t*) dst), s, 16);
   free(s);

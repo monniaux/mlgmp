@@ -21,9 +21,9 @@
 #endif
 
 #ifdef __GNUC__
-#define noreturn __attribute__((noreturn))
+#define mlgmp_noreturn __attribute__((noreturn))
 #else
-#define noreturn
+#define mlgmp_noreturn
 #endif
 
 /* In C99 or recent versions of gcc,
@@ -38,6 +38,7 @@
 #endif
 
 #ifdef SERIALIZE
+#include <caml/intext.h>
 /* Sizes of types on arch 32/ arch 64 */
 
 /* THOSE SIZES ARE A HACK. */
@@ -57,12 +58,4 @@
 /* __mpfr_struct = 3 * int + ptr */
 #define MPFR_SIZE_ARCH32 16
 #define MPFR_SIZE_ARCH64 24
-
-extern void serialize_int_4(int32_t i);
-extern void serialize_block_1(void * data, long len);
-
-extern uint32_t deserialize_uint_4(void);
-extern int32_t deserialize_sint_4(void);
-extern void deserialize_block_1(void * data, long len);
-
 #endif /* SERIALIZE */

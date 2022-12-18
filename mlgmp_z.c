@@ -121,8 +121,8 @@ value _mlgmp_z_to_string_base(value ml_base, value ml_val)
      need a means of shortening the length of a pre-allocated
      Caml string (mpz_sizeinbase sometimes overestimates lengths). */
   s=mpz_get_str(NULL, base, *mpz_val(ml_val));
-  r=alloc_string(strlen(s));
-  strcpy(String_val(r), s);
+  r=caml_alloc_string(strlen(s));
+  strcpy((char*) String_val(r), s);
   free(s);
 
   CAMLreturn(r);
@@ -138,7 +138,7 @@ value _mlgmp_z_to_float(value v)
 {
   CAMLparam1(v);
   CAMLlocal1(r);
-  r = copy_double(mpz_get_d(*mpz_val(v)));
+  r = caml_copy_double(mpz_get_d(*mpz_val(v)));
   CAMLreturn(r);
 }
 
@@ -274,7 +274,7 @@ value _mlgmp_z_sqrtrem(value a)
 
   mpz_sqrtrem(*mpz_val(q), *mpz_val(r), *mpz_val(a));
 
-  qr=alloc_tuple(2);
+  qr=caml_alloc_tuple(2);
   Store_field(qr, 0, q);
   Store_field(qr, 1, r);
   CAMLreturn(qr);
@@ -312,7 +312,7 @@ value _mlgmp_z_##kind##div_qr(value n, value d)				\
 									\
   mpz_##kind##div_qr(*mpz_val(q), *mpz_val(r), *mpz_val(n), *mpz_val(d));\
 									\
-  qr=alloc_tuple(2);							\
+  qr=caml_alloc_tuple(2);							\
   Store_field(qr, 0, q);						\
   Store_field(qr, 1, r);						\
   CAMLreturn(qr);						        \
@@ -385,7 +385,7 @@ value _mlgmp_z_##kind##div_qr_ui(value n, value d)			\
 									\
   mpz_##kind##div_qr_ui(*mpz_val(q), *mpz_val(r), *mpz_val(n), ui_d);	\
 									\
-  qr=alloc_tuple(2);							\
+  qr=caml_alloc_tuple(2);							\
   Store_field(qr, 0, q);						\
   Store_field(qr, 1, r);						\
   CAMLreturn(qr);	       						\
@@ -608,7 +608,7 @@ value  _mlgmp_z_gcdext(value a, value b)
   s=alloc_init_mpz();  
   t=alloc_init_mpz();
   mpz_gcdext(*mpz_val(g), *mpz_val(s), *mpz_val(t), *mpz_val(a), *mpz_val(b));
-  r=alloc_tuple(3);
+  r=caml_alloc_tuple(3);
   Store_field(r, 0, g);
   Store_field(r, 1, s);
   Store_field(r, 2, t);
@@ -626,7 +626,7 @@ value  _mlgmp_z_invert(value a, value b)
     }
   else
     {
-      r=alloc_tuple(1);
+      r=caml_alloc_tuple(1);
       Store_field(r, 0, i);
     }
   CAMLreturn(r);
@@ -661,7 +661,7 @@ value _mlgmp_z_remove(value a, value b)
   CAMLlocal2(f, r);
   f = alloc_init_mpz();
   x = mpz_remove(*mpz_val(f), *mpz_val(a), *mpz_val(b));
-  r=alloc_tuple(2);
+  r=caml_alloc_tuple(2);
   Store_field(r, 0, f);
   Store_field(r, 1, Val_int(x));
   CAMLreturn(r);
@@ -746,7 +746,7 @@ z_random_op_ui(rrandomb)
 value _mlgmp_z_initialize()
 {
   CAMLparam0();
-  register_custom_operations(& _mlgmp_custom_z);
+  caml_register_custom_operations(& _mlgmp_custom_z);
   CAMLreturn(Val_unit);
 }
 
@@ -764,8 +764,8 @@ void _mlgmp_z_serialize(value v,
 
   s = mpz_get_str (NULL, 16, *mpz_val(v));
   len = strlen(s);
-  serialize_int_4(len);
-  serialize_block_1(s, len);
+  caml_serialize_int_4(len);
+  caml_serialize_block_1(s, len);
 
   free(s);
   CAMLreturn0;
@@ -776,9 +776,9 @@ unsigned long _mlgmp_z_deserialize(void * dst)
   char *s;
   int len;
 
-  len = deserialize_uint_4();
+  len = caml_deserialize_uint_4();
   s = malloc(len+1);
-  deserialize_block_1(s, len);
+  caml_deserialize_block_1(s, len);
   s[len] = 0;
   mpz_init_set_str (*((mpz_t*) dst), s, 16);
   free(s);

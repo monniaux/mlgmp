@@ -93,7 +93,7 @@ value _mlgmp_q_to_float(value v)
   CAMLparam1(v);
   CAMLlocal1(r);
   trace(to_float);
-  r = copy_double(mpq_get_d(*mpq_val(v)));
+  r = caml_copy_double(mpq_get_d(*mpq_val(v)));
   CAMLreturn(r);
 }
 
@@ -185,7 +185,7 @@ value _mlgmp_q_sgn(value a)
 value _mlgmp_q_initialize()
 {
   CAMLparam0();
-  register_custom_operations(& _mlgmp_custom_q);
+  caml_register_custom_operations(& _mlgmp_custom_q);
   CAMLreturn(Val_unit);
 }
 
@@ -203,14 +203,14 @@ void _mlgmp_q_serialize(value v,
 
   s = mpz_get_str (NULL, 16, mpq_numref(*mpq_val(v)));
   len = strlen(s);
-  serialize_int_4(len);
-  serialize_block_1(s, len);
+  caml_serialize_int_4(len);
+  caml_serialize_block_1(s, len);
   free(s);
 
   s = mpz_get_str (NULL, 16, mpq_denref(*mpq_val(v)));
   len = strlen(s);
-  serialize_int_4(len);
-  serialize_block_1(s, len);
+  caml_serialize_int_4(len);
+  caml_serialize_block_1(s, len);
   free(s);
 
   CAMLreturn0;
@@ -221,16 +221,16 @@ unsigned long _mlgmp_q_deserialize(void * dst)
   char *s;
   int len;
 
-  len = deserialize_uint_4();
+  len = caml_deserialize_uint_4();
   s = malloc(len+1);
-  deserialize_block_1(s, len);
+  caml_deserialize_block_1(s, len);
   s[len] = 0;
   mpz_init_set_str (mpq_numref(*((mpq_t*) dst)), s, 16);
   free(s);
 
-  len = deserialize_uint_4();
+  len = caml_deserialize_uint_4();
   s = malloc(len+1);
-  deserialize_block_1(s, len);
+  caml_deserialize_block_1(s, len);
   s[len] = 0;
   mpz_init_set_str (mpq_denref(*((mpq_t*) dst)), s, 16);
   free(s);

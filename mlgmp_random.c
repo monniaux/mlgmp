@@ -34,7 +34,7 @@ value _mlgmp_randinit_lc(value n)
 {
   CAMLparam1(n);
   CAMLlocal1(r);
-  r = alloc_custom(&_mlgmp_custom_random,
+  r = caml_alloc_custom(&_mlgmp_custom_random,
 		       sizeof(gmp_randstate_t),
 		       4,
 		       1000000);

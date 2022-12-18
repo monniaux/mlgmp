@@ -52,7 +52,7 @@ static inline mpz_t * mpz_val (value val)
 
 static inline value alloc_mpz (void)
 {
-  return alloc_custom(&_mlgmp_custom_z,
+  return caml_alloc_custom(&_mlgmp_custom_z,
 		       sizeof(mpz_t),
 		       0,
 		       1);
@@ -78,7 +78,7 @@ static inline mpq_t * mpq_val (value val)
 
 static inline value alloc_mpq (void)
 {
-  return alloc_custom(&_mlgmp_custom_q,
+  return caml_alloc_custom(&_mlgmp_custom_q,
 		       sizeof(mpq_t),
 		       0,
 		       1);
@@ -104,7 +104,7 @@ static inline mpf_t * mpf_val (value val)
 
 static inline value alloc_mpf (void)
 {
-  return alloc_custom(&_mlgmp_custom_f,
+  return caml_alloc_custom(&_mlgmp_custom_f,
 		       sizeof(mpf_t),
 		       0,
 		       1);
@@ -133,7 +133,7 @@ static inline mp_rnd_t Mode_val (value val)
 
 static inline value alloc_mpfr (void)
 {
-  return alloc_custom(&_mlgmp_custom_fr,
+  return caml_alloc_custom(&_mlgmp_custom_fr,
 		       sizeof(mpfr_t),
 		       0,
 		       1);
