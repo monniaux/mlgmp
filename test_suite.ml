@@ -112,7 +112,7 @@ assert ((FR.to_string_base_digits ~base:10 ~mode:GMP_RNDN
 assert((FR.to_string (FR.pow_ui (FR.from_float 2.1) 6)) =
        "8.576612100E1"); (* verified w/ Mathematica *)
 
-with Unimplemented _ -> ()
+with Unimplemented _ -> print_endline "unimplemented"
 end;;
 
 Gc.full_major ();;
